@@ -1,5 +1,225 @@
 # SaaS 가격 정책 수립 시스템 프롬프트
 
+## 시스템 구성도
+
+```mermaid
+graph TD
+    User[👤 사용자] -->|가격 정책 수립 요청| MainAgent[🤖 Main Agent<br/>가격 정책 컨설턴트]
+
+    MainAgent -->|1. 정보 수집| InfoGather[📋 정보 수집 단계]
+    InfoGather -->|필요 정보 확인| User
+
+    InfoGather -->|2. 비용 분석 요청| Skill1[⚙️ Skill 1<br/>비용 분석기]
+    Skill1 -->|비용 구조 데이터| CostDB[(비용 데이터)]
+    CostDB -->|BEP, 단위 비용 등| Skill1
+    Skill1 -->|분석 결과| MainAgent
+
+    MainAgent -->|3. 시장 조사 요청| Skill2[🔍 Skill 2<br/>시장 가격 조사기]
+    Skill2 -->|웹 검색| WebSearch[🌐 Web Search]
+    WebSearch -->|경쟁사 가격 정보| Skill2
+    Skill2 -->|시장 데이터| MainAgent
+
+    MainAgent -->|4. 가격 모델 설계 요청| Skill3[💡 Skill 3<br/>가격 모델 설계기]
+    Skill3 -->|비용 + 시장 데이터 활용| Skill3
+    Skill3 -->|Tier 구조 제안| MainAgent
+
+    MainAgent -->|5. 재무 검증 요청| Skill4[📊 Skill 4<br/>재무 시뮬레이터]
+    Skill4 -->|시나리오 분석| Simulation[📈 시뮬레이션 엔진]
+    Simulation -->|예측 결과| Skill4
+    Skill4 -->|재무 예측| MainAgent
+
+    MainAgent -->|6. 통합 분석 및 권고| FinalReport[📄 최종 권고안]
+    FinalReport -->|2-3개 옵션 제시| User
+
+    User -->|피드백/수정 요청| MainAgent
+    MainAgent -->|재분석| Skill3
+    MainAgent -->|재분석| Skill4
+
+    style MainAgent fill:#4A90E2,stroke:#2E5C8A,stroke-width:3px,color:#fff
+    style Skill1 fill:#50C878,stroke:#2D7A4A,stroke-width:2px,color:#fff
+    style Skill2 fill:#50C878,stroke:#2D7A4A,stroke-width:2px,color:#fff
+    style Skill3 fill:#50C878,stroke:#2D7A4A,stroke-width:2px,color:#fff
+    style Skill4 fill:#50C878,stroke:#2D7A4A,stroke-width:2px,color:#fff
+    style User fill:#FF6B6B,stroke:#C92A2A,stroke-width:2px,color:#fff
+    style FinalReport fill:#FFD93D,stroke:#C29D00,stroke-width:2px,color:#333
+```
+
+## 데이터 흐름도
+
+```mermaid
+flowchart LR
+    A[사용자 입력<br/>- 제품 정보<br/>- 비용 데이터<br/>- 목표] --> B{Main Agent}
+
+    B --> C[Skill 1: 비용 분석]
+    C --> C1[비용 구조 계산]
+    C --> C2[BEP 계산]
+    C --> C3[민감도 분석]
+    C1 & C2 & C3 --> D1[비용 분석 결과]
+
+    D1 --> E[Skill 2: 시장 조사]
+    E --> E1[웹 검색]
+    E --> E2[경쟁사 분석]
+    E --> E3[가격대 분석]
+    E1 & E2 & E3 --> D2[시장 데이터]
+
+    D1 & D2 --> F[Skill 3: 가격 모델 설계]
+    F --> F1[Tier 설계]
+    F --> F2[가격 책정]
+    F --> F3[기능 배분]
+    F1 & F2 & F3 --> D3[가격 모델안]
+
+    D1 & D3 --> G[Skill 4: 재무 시뮬레이션]
+    G --> G1[매출 예측]
+    G --> G2[시나리오 분석]
+    G --> G3[지표 계산]
+    G1 & G2 & G3 --> D4[재무 예측]
+
+    D1 & D2 & D3 & D4 --> B
+    B --> H[최종 권고안<br/>- 옵션 A<br/>- 옵션 B<br/>- 옵션 C]
+
+    H --> I[사용자]
+    I -.피드백.-> B
+
+    style A fill:#FFE5E5,stroke:#FF6B6B,stroke-width:2px
+    style B fill:#E5F2FF,stroke:#4A90E2,stroke-width:3px
+    style C fill:#E5FFE5,stroke:#50C878,stroke-width:2px
+    style E fill:#E5FFE5,stroke:#50C878,stroke-width:2px
+    style F fill:#E5FFE5,stroke:#50C878,stroke-width:2px
+    style G fill:#E5FFE5,stroke:#50C878,stroke-width:2px
+    style H fill:#FFF9E5,stroke:#FFD93D,stroke-width:2px
+    style I fill:#FFE5E5,stroke:#FF6B6B,stroke-width:2px
+```
+
+## 상세 프로세스 흐름
+
+```mermaid
+sequenceDiagram
+    actor User as 👤 사용자
+    participant MA as Main Agent
+    participant S1 as Skill 1<br/>비용 분석
+    participant S2 as Skill 2<br/>시장 조사
+    participant S3 as Skill 3<br/>가격 설계
+    participant S4 as Skill 4<br/>재무 검증
+    participant Web as 웹 검색
+
+    User->>MA: 가격 정책 수립 요청
+    MA->>User: 필요 정보 질문
+    User->>MA: 정보 제공<br/>(비용, 목표, 제약사항)
+
+    Note over MA: 1단계: 정보 수집 완료
+
+    MA->>S1: 비용 분석 요청<br/>(변동비, 고정비, 사용량)
+    S1->>S1: 비용 구조 계산
+    S1->>S1: BEP 계산
+    S1->>S1: 민감도 분석
+    S1->>MA: 비용 분석 결과
+
+    Note over MA: 2단계: 비용 분석 완료
+
+    MA->>S2: 시장 조사 요청
+    S2->>Web: 경쟁사 가격 검색
+    Web->>S2: 검색 결과
+    S2->>S2: 가격 데이터 분석
+    S2->>MA: 시장 벤치마크 데이터
+
+    Note over MA: 3단계: 시장 조사 완료
+
+    MA->>S3: 가격 모델 설계 요청<br/>(비용 데이터 + 시장 데이터)
+    S3->>S3: Tier 구조 설계
+    S3->>S3: 가격 책정
+    S3->>S3: 기능 배분
+    S3->>MA: 가격 모델안 (2-3개)
+
+    Note over MA: 4단계: 가격 모델 설계 완료
+
+    MA->>S4: 재무 검증 요청<br/>(가격안 + 비용 구조)
+    S4->>S4: 12개월 매출 예측
+    S4->>S4: 시나리오 분석
+    S4->>S4: 핵심 지표 계산
+    S4->>MA: 재무 예측 결과
+
+    Note over MA: 5단계: 재무 검증 완료
+
+    MA->>MA: 통합 분석
+    MA->>User: 최종 권고안 제시<br/>(옵션 A, B, C)
+
+    alt 사용자 피드백
+        User->>MA: 수정 요청<br/>(예: 마진율 상향)
+        MA->>S3: 재설계 요청
+        S3->>MA: 수정된 가격안
+        MA->>S4: 재검증 요청
+        S4->>MA: 수정된 예측
+        MA->>User: 수정된 권고안
+    end
+
+    User->>MA: 최종 승인
+    MA->>User: 실행 계획 제공
+```
+
+## 시스템 아키텍처
+
+```mermaid
+graph TB
+    subgraph "사용자 인터페이스"
+        UI[Claude Chat Interface]
+    end
+
+    subgraph "Main Agent Layer"
+        MA[Main Agent<br/>오케스트레이터]
+        Context[컨텍스트 관리]
+        Router[Skill 라우팅]
+    end
+
+    subgraph "Skill Layer"
+        S1[Skill 1<br/>비용 분석기]
+        S2[Skill 2<br/>시장 조사기]
+        S3[Skill 3<br/>가격 설계기]
+        S4[Skill 4<br/>재무 시뮬레이터]
+    end
+
+    subgraph "데이터 & 도구"
+        DB[(비용 데이터<br/>저장소)]
+        Web[웹 검색 API]
+        Calc[계산 엔진]
+        Report[보고서 생성]
+    end
+
+    UI <--> MA
+    MA <--> Context
+    MA <--> Router
+
+    Router --> S1
+    Router --> S2
+    Router --> S3
+    Router --> S4
+
+    S1 <--> DB
+    S1 <--> Calc
+
+    S2 <--> Web
+
+    S3 <--> Calc
+
+    S4 <--> Calc
+    S4 <--> Report
+
+    S1 -.결과.-> Context
+    S2 -.결과.-> Context
+    S3 -.결과.-> Context
+    S4 -.결과.-> Context
+
+    style UI fill:#FFE5E5,stroke:#FF6B6B,stroke-width:2px
+    style MA fill:#E5F2FF,stroke:#4A90E2,stroke-width:3px
+    style Context fill:#F0F0F0,stroke:#999,stroke-width:1px
+    style Router fill:#F0F0F0,stroke:#999,stroke-width:1px
+    style S1 fill:#E5FFE5,stroke:#50C878,stroke-width:2px
+    style S2 fill:#E5FFE5,stroke:#50C878,stroke-width:2px
+    style S3 fill:#E5FFE5,stroke:#50C878,stroke-width:2px
+    style S4 fill:#E5FFE5,stroke:#50C878,stroke-width:2px
+```
+
+---
+
 ## Main Agent: 가격 정책 컨설턴트
 
 ```markdown
@@ -234,7 +454,7 @@
 - **Premium 구간**: $50-100/월/인
   - 대표 제품: [제품명들]
   - 특징: [공통점]
-  
+
 - **Mid-market 구간**: $20-50/월/인
   - 대표 제품: [제품명들]
   - 특징: [공통점]
@@ -386,10 +606,10 @@
 - **가격 표기**: ₩990,000 형식 vs ₩1,000,000 (심리적 효과)
 
 ## 추가 요금 정책
-- **초과 사용량**: 
+- **초과 사용량**:
   - 1만 쿼리당 ₩XX,XXX
   - 또는 자동 업그레이드 제안
-- **사용자 추가**: 
+- **사용자 추가**:
   - ₩X,XXX/인/월 (Tier별 차등)
 - **추가 서비스**:
   - 온보딩/교육: ₩XXX,XXX
