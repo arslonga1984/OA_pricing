@@ -60,12 +60,11 @@ with st.sidebar:
         st.warning("⚠️ API 키를 입력해주세요")
 
     st.markdown("---")
-    st.markdown("### 📖 사용 방법")
+    st.markdown("### 📖 입력 가이드")
     st.markdown("""
-    1. 왼쪽 폼에 제품 정보 입력
-    2. '가격 정책 분석 시작' 버튼 클릭
-    3. 4단계 분석이 자동 실행됩니다
-    4. 최종 권고안을 확인하세요
+    - 🔴 **필수**: 반드시 입력해야 분석 가능
+    - 🟡 **선택**: 입력하면 더 정확한 분석
+    - 미입력 시 기본값 또는 추정치 사용
     """)
 
 # 메인 컨텐츠: 2열 레이아웃
@@ -75,61 +74,387 @@ with col1:
     st.header("📝 정보 입력")
 
     with st.form("pricing_form"):
-        st.subheader("1. 제품/서비스 개요")
-        product_overview = st.text_area(
-            "제품 설명",
-            placeholder="예: AI 기반 업무 자동화 챗봇으로, 직원들의 반복적인 업무를 자동화하고 생산성을 향상시킵니다.",
-            height=100,
-            help="제품이 무엇이고, 어떤 문제를 해결하는지 설명해주세요"
-        )
+        # ==========================================
+        # 섹션 1: 제품/서비스 기본 정보 (필수)
+        # ==========================================
+        st.subheader("1. 제품/서비스 기본 정보 🔴 필수")
 
-        st.subheader("2. 비용 구조")
+        col_a, col_b = st.columns(2)
+        with col_a:
+            product_name = st.text_input(
+                "제품명 *",
+                placeholder="예: OfficeAgent",
+                help="제품 또는 서비스의 이름"
+            )
 
-        variable_costs = st.text_area(
-            "변동비용 (사용량에 비례)",
-            placeholder="예:\n- GPT-4 API: 사용자당 월 평균 $5\n- AWS 비용: 사용자당 월 $2\n- 총 변동비: 사용자당 월 $7",
-            height=100,
-            help="LLM API, 클라우드 비용 등 사용량에 따라 변동되는 비용"
-        )
+        with col_b:
+            product_type = st.selectbox(
+                "제품 유형 *",
+                options=[
+                    "AI 업무 어시스턴트",
+                    "AI 챗봇/상담",
+                    "문서 자동화",
+                    "데이터 분석 도구",
+                    "협업/생산성 도구",
+                    "마케팅 자동화",
+                    "고객 서비스 도구",
+                    "기타"
+                ],
+                help="제품의 주요 카테고리"
+            )
 
-        fixed_costs = st.text_area(
-            "고정비용 (사용자 수와 무관)",
-            placeholder="예:\n- 인건비: 월 2천만원 (개발 3명)\n- 인프라 기본료: 월 50만원\n- 기타: 월 100만원\n- 총 고정비: 월 2,150만원",
-            height=100,
-            help="인건비, 인프라 기본료 등 고정적으로 발생하는 비용"
-        )
-
-        st.subheader("3. 예상 사용 패턴")
-        usage_pattern = st.text_area(
-            "사용 패턴",
-            placeholder="예: 사용자 1인당 월 평균 1,000회 쿼리 예상, 파워유저는 3,000회까지 사용",
+        product_description = st.text_area(
+            "제품 설명 *",
+            placeholder="예: AI 기반 업무 자동화 도구로, 직원들의 반복적인 문서 작업을 자동화하고 생산성을 향상시킵니다. 문서 요약, 검색, 자동 응답 기능을 제공합니다.",
             height=80,
-            help="사용자당 평균 사용량과 편차"
+            help="제품이 무엇이고, 어떤 문제를 해결하는지 설명"
         )
 
-        st.subheader("4. 타겟 고객층")
-        target_customers = st.text_area(
-            "타겟 고객",
-            placeholder="예: B2B, 직원 50-500명 규모의 중소/중견기업, IT/금융/제조업",
-            height=80,
-            help="B2B/B2C, 기업 규모, 업종 등"
+        key_features = st.text_area(
+            "핵심 기능 (쉼표로 구분) *",
+            placeholder="예: 문서 요약, 지능형 검색, 자동 응답, 업무 자동화, 팀 협업",
+            height=60,
+            help="제품의 주요 기능들"
         )
 
-        st.subheader("5. 사업 목표")
-        business_goals = st.text_area(
-            "사업 목표",
-            placeholder="예: 향후 12개월 내 100개 기업 유치 목표, 초기에는 시장 점유율 확보가 우선",
-            height=80,
-            help="시장 점유율 vs 수익성, 목표 고객 수 등"
+        st.markdown("---")
+
+        # ==========================================
+        # 섹션 2: 비용 구조 (필수)
+        # ==========================================
+        st.subheader("2. 비용 구조 🔴 필수")
+
+        st.markdown("##### 변동비용 (사용량에 비례)")
+
+        col_c, col_d = st.columns(2)
+        with col_c:
+            llm_provider = st.selectbox(
+                "LLM 제공사 *",
+                options=[
+                    "OpenAI (GPT-4)",
+                    "OpenAI (GPT-4o)",
+                    "OpenAI (GPT-3.5)",
+                    "Anthropic (Claude)",
+                    "Google (Gemini)",
+                    "자체 모델",
+                    "기타/혼합"
+                ],
+                help="사용하는 LLM API 제공사"
+            )
+
+        with col_d:
+            llm_cost_per_user = st.number_input(
+                "LLM API 비용 (1인/월, 원) *",
+                min_value=0,
+                value=5000,
+                step=500,
+                help="사용자 1인당 월 평균 LLM API 비용 (원화)"
+            )
+
+        col_e, col_f = st.columns(2)
+        with col_e:
+            cloud_provider = st.selectbox(
+                "클라우드 제공사",
+                options=["AWS", "GCP", "Azure", "NCP (네이버)", "기타"],
+                help="사용하는 클라우드 서비스"
+            )
+
+        with col_f:
+            cloud_cost_per_user = st.number_input(
+                "클라우드 비용 (1인/월, 원)",
+                min_value=0,
+                value=2000,
+                step=500,
+                help="사용자 1인당 월 평균 클라우드 비용"
+            )
+
+        other_variable_cost = st.number_input(
+            "기타 변동비 (1인/월, 원)",
+            min_value=0,
+            value=0,
+            step=500,
+            help="기타 사용량 비례 비용 (외부 API, 스토리지 등)"
         )
 
-        st.subheader("6. 제약사항")
-        constraints = st.text_area(
-            "제약사항 및 고려사항",
-            placeholder="예: 경쟁사 A의 가격($50/월/인) 대비 경쟁력 있는 가격 필요, Tiered 모델 선호",
-            height=80,
-            help="가격 제약, 선호하는 모델, 기타 고려사항"
+        total_variable = llm_cost_per_user + cloud_cost_per_user + other_variable_cost
+        st.info(f"📊 **총 변동비**: ₩{total_variable:,}/인/월")
+
+        st.markdown("##### 고정비용 (사용자 수와 무관)")
+
+        col_g, col_h = st.columns(2)
+        with col_g:
+            dev_team_size = st.number_input(
+                "개발팀 인원 수 *",
+                min_value=1,
+                value=3,
+                step=1,
+                help="개발/운영에 참여하는 인원 수"
+            )
+
+        with col_h:
+            avg_salary = st.number_input(
+                "평균 인건비 (1인/월, 만원) *",
+                min_value=0,
+                value=600,
+                step=50,
+                help="개발팀 1인당 월 평균 인건비 (만원)"
+            )
+
+        col_i, col_j = st.columns(2)
+        with col_i:
+            infra_base_cost = st.number_input(
+                "인프라 기본료 (월, 만원)",
+                min_value=0,
+                value=50,
+                step=10,
+                help="서버, 도메인, 보안 등 기본 비용"
+            )
+
+        with col_j:
+            other_fixed_cost = st.number_input(
+                "기타 고정비 (월, 만원)",
+                min_value=0,
+                value=50,
+                step=10,
+                help="사무실, 소프트웨어 라이선스 등"
+            )
+
+        total_fixed = (dev_team_size * avg_salary) + infra_base_cost + other_fixed_cost
+        st.info(f"📊 **총 고정비**: ₩{total_fixed * 10000:,}/월 (₩{total_fixed}만원)")
+
+        st.markdown("---")
+
+        # ==========================================
+        # 섹션 3: 타겟 고객 (필수)
+        # ==========================================
+        st.subheader("3. 타겟 고객 🔴 필수")
+
+        col_k, col_l = st.columns(2)
+        with col_k:
+            business_model = st.selectbox(
+                "비즈니스 모델 *",
+                options=["B2B (기업 대상)", "B2C (개인 대상)", "B2B + B2C (혼합)"],
+                help="주요 고객 유형"
+            )
+
+        with col_l:
+            target_company_size = st.multiselect(
+                "타겟 기업 규모 *",
+                options=[
+                    "스타트업 (1-10명)",
+                    "소기업 (11-50명)",
+                    "중소기업 (51-200명)",
+                    "중견기업 (201-1000명)",
+                    "대기업 (1000명+)"
+                ],
+                default=["중소기업 (51-200명)", "중견기업 (201-1000명)"],
+                help="주요 타겟 기업 규모 (복수 선택 가능)"
+            )
+
+        target_industries = st.multiselect(
+            "타겟 업종 *",
+            options=[
+                "IT/소프트웨어",
+                "금융/보험",
+                "제조업",
+                "유통/물류",
+                "의료/헬스케어",
+                "교육",
+                "공공기관",
+                "전문서비스 (컨설팅, 법률 등)",
+                "미디어/엔터테인먼트",
+                "기타/전체 업종"
+            ],
+            default=["IT/소프트웨어", "금융/보험"],
+            help="주요 타겟 업종 (복수 선택 가능)"
         )
+
+        st.markdown("---")
+
+        # ==========================================
+        # 섹션 4: 예상 사용 패턴 (선택)
+        # ==========================================
+        st.subheader("4. 예상 사용 패턴 🟡 선택")
+
+        col_m, col_n = st.columns(2)
+        with col_m:
+            avg_queries_per_user = st.number_input(
+                "평균 쿼리 수 (1인/월)",
+                min_value=0,
+                value=500,
+                step=100,
+                help="일반 사용자의 월 평균 쿼리/요청 수"
+            )
+
+        with col_n:
+            power_user_queries = st.number_input(
+                "파워유저 쿼리 수 (1인/월)",
+                min_value=0,
+                value=2000,
+                step=100,
+                help="헤비 사용자의 월 쿼리/요청 수"
+            )
+
+        usage_variance = st.select_slider(
+            "사용량 변동성",
+            options=["매우 낮음", "낮음", "보통", "높음", "매우 높음"],
+            value="보통",
+            help="사용자 간, 월별 사용량 편차 정도"
+        )
+
+        st.markdown("---")
+
+        # ==========================================
+        # 섹션 5: 사업 목표 (선택)
+        # ==========================================
+        st.subheader("5. 사업 목표 🟡 선택")
+
+        col_o, col_p = st.columns(2)
+        with col_o:
+            business_priority = st.selectbox(
+                "사업 우선순위",
+                options=[
+                    "시장점유율 우선 (저가 전략)",
+                    "수익성 우선 (고가 전략)",
+                    "균형 (중가 전략)"
+                ],
+                index=2,
+                help="초기 사업 전략 방향"
+            )
+
+        with col_p:
+            target_customers_12m = st.number_input(
+                "12개월 목표 고객사 수",
+                min_value=0,
+                value=50,
+                step=10,
+                help="12개월 내 유치 목표 고객사 수"
+            )
+
+        col_q, col_r = st.columns(2)
+        with col_q:
+            target_margin = st.slider(
+                "목표 마진율 (%)",
+                min_value=0,
+                max_value=90,
+                value=50,
+                step=5,
+                help="목표 영업이익률"
+            )
+
+        with col_r:
+            expected_churn = st.slider(
+                "예상 월 이탈률 (%)",
+                min_value=0.0,
+                max_value=20.0,
+                value=5.0,
+                step=0.5,
+                help="월 평균 고객 이탈률"
+            )
+
+        st.markdown("---")
+
+        # ==========================================
+        # 섹션 6: 경쟁사 및 시장 정보 (선택)
+        # ==========================================
+        st.subheader("6. 경쟁사 및 시장 정보 🟡 선택")
+
+        main_competitors = st.multiselect(
+            "주요 경쟁사",
+            options=[
+                "ChatGPT Business/Enterprise",
+                "Wrks.ai",
+                "Microsoft Copilot",
+                "Google Duet AI",
+                "Notion AI",
+                "기타 국내 솔루션",
+                "기타 해외 솔루션",
+                "직접 입력"
+            ],
+            default=[],
+            help="직접적으로 경쟁하는 제품들"
+        )
+
+        competitor_price_info = st.text_area(
+            "경쟁사 가격 정보 (알고 있다면)",
+            placeholder="예: ChatGPT Business $30/월, Wrks.ai 정액제 1만원/월, 종량제 평균 3천원/월",
+            height=60,
+            help="알고 있는 경쟁사 가격 정보"
+        )
+
+        market_position = st.selectbox(
+            "목표 시장 포지션",
+            options=[
+                "Premium (고가/고기능)",
+                "Mid-market (중가/표준기능)",
+                "Budget (저가/기본기능)",
+                "가격 경쟁력 우선"
+            ],
+            index=3,
+            help="시장에서의 목표 포지션"
+        )
+
+        st.markdown("---")
+
+        # ==========================================
+        # 섹션 7: 가격 모델 선호도 (선택)
+        # ==========================================
+        st.subheader("7. 가격 모델 선호도 🟡 선택")
+
+        col_s, col_t = st.columns(2)
+        with col_s:
+            preferred_pricing_model = st.selectbox(
+                "선호 가격 모델",
+                options=[
+                    "미정 (분석 후 결정)",
+                    "정액제 (Per-user)",
+                    "종량제 (Usage-based)",
+                    "하이브리드 (정액+종량)",
+                    "Tiered (단계별 요금제)"
+                ],
+                index=0,
+                help="선호하는 가격 책정 방식"
+            )
+
+        with col_t:
+            billing_cycle = st.selectbox(
+                "선호 결제 주기",
+                options=[
+                    "월간 결제",
+                    "연간 결제",
+                    "월간 + 연간 (할인)"
+                ],
+                index=2,
+                help="선호하는 결제 주기"
+            )
+
+        freemium_interest = st.selectbox(
+            "무료 플랜 제공 의향",
+            options=[
+                "무료 플랜 없음",
+                "기능 제한 무료 플랜",
+                "기간 제한 무료 체험",
+                "미정"
+            ],
+            index=2,
+            help="무료 플랜 또는 체험 제공 여부"
+        )
+
+        st.markdown("---")
+
+        # ==========================================
+        # 섹션 8: 기타 제약사항 (선택)
+        # ==========================================
+        st.subheader("8. 기타 제약사항 🟡 선택")
+
+        other_constraints = st.text_area(
+            "추가 고려사항 또는 제약사항",
+            placeholder="예: 특정 가격대 이하 유지 필요, 기존 고객 할인 정책 필요, 파트너 리셀러 마진 고려 등",
+            height=80,
+            help="기타 가격 정책에 영향을 미치는 요소"
+        )
+
+        st.markdown("---")
 
         submitted = st.form_submit_button(
             "🚀 가격 정책 분석 시작",
@@ -143,19 +468,69 @@ with col2:
     if submitted:
         if not api_key:
             st.error("⚠️ API 키를 먼저 입력해주세요 (왼쪽 사이드바)")
-        elif not all([product_overview, variable_costs, fixed_costs, usage_pattern,
-                      target_customers, business_goals]):
-            st.error("⚠️ 모든 필수 항목을 입력해주세요")
+        elif not all([product_name, product_description, key_features]):
+            st.error("⚠️ 제품 기본 정보를 모두 입력해주세요")
+        elif not target_company_size or not target_industries:
+            st.error("⚠️ 타겟 고객 정보를 선택해주세요")
         else:
-            # 사용자 데이터 구성
+            # 사용자 데이터 구성 (상세 정보)
             user_data = {
-                'product_overview': product_overview,
-                'variable_costs': variable_costs,
-                'fixed_costs': fixed_costs,
-                'usage_pattern': usage_pattern,
-                'target_customers': target_customers,
-                'business_goals': business_goals,
-                'constraints': constraints if constraints else "특별한 제약사항 없음"
+                # 제품 정보
+                'product_overview': f"""
+제품명: {product_name}
+제품 유형: {product_type}
+제품 설명: {product_description}
+핵심 기능: {key_features}
+""",
+                # 비용 구조
+                'variable_costs': f"""
+[변동비용 - 사용자 1인당 월 비용]
+- LLM 제공사: {llm_provider}
+- LLM API 비용: ₩{llm_cost_per_user:,}/인/월
+- 클라우드 ({cloud_provider}): ₩{cloud_cost_per_user:,}/인/월
+- 기타 변동비: ₩{other_variable_cost:,}/인/월
+- **총 변동비: ₩{total_variable:,}/인/월**
+""",
+                'fixed_costs': f"""
+[고정비용 - 월간]
+- 개발팀: {dev_team_size}명 × ₩{avg_salary}만원 = ₩{dev_team_size * avg_salary}만원/월
+- 인프라 기본료: ₩{infra_base_cost}만원/월
+- 기타 고정비: ₩{other_fixed_cost}만원/월
+- **총 고정비: ₩{total_fixed}만원/월 (₩{total_fixed * 10000:,})**
+""",
+                # 사용 패턴
+                'usage_pattern': f"""
+- 평균 사용자 쿼리: {avg_queries_per_user}회/월
+- 파워유저 쿼리: {power_user_queries}회/월
+- 사용량 변동성: {usage_variance}
+""",
+                # 타겟 고객
+                'target_customers': f"""
+- 비즈니스 모델: {business_model}
+- 타겟 기업 규모: {', '.join(target_company_size)}
+- 타겟 업종: {', '.join(target_industries)}
+""",
+                # 사업 목표
+                'business_goals': f"""
+- 사업 우선순위: {business_priority}
+- 12개월 목표 고객사: {target_customers_12m}개
+- 목표 마진율: {target_margin}%
+- 예상 월 이탈률: {expected_churn}%
+""",
+                # 경쟁사 정보
+                'competitor_info': f"""
+- 주요 경쟁사: {', '.join(main_competitors) if main_competitors else '미입력'}
+- 경쟁사 가격 정보: {competitor_price_info if competitor_price_info else '미입력'}
+- 목표 시장 포지션: {market_position}
+""",
+                # 가격 모델 선호
+                'pricing_preferences': f"""
+- 선호 가격 모델: {preferred_pricing_model}
+- 선호 결제 주기: {billing_cycle}
+- 무료 플랜: {freemium_interest}
+""",
+                # 제약사항
+                'constraints': other_constraints if other_constraints else "특별한 제약사항 없음"
             }
 
             # 진행 상태 표시

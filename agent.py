@@ -69,6 +69,12 @@ class PricingAgent:
 ### 사업 목표
 {user_data['business_goals']}
 
+### 경쟁사 및 시장 정보
+{user_data.get('competitor_info', '미입력')}
+
+### 가격 모델 선호도
+{user_data.get('pricing_preferences', '미입력')}
+
 ### 제약사항
 {user_data['constraints']}
 """
