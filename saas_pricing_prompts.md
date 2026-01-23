@@ -4,44 +4,55 @@
 
 ```mermaid
 graph TD
-    User[👤 사용자] -->|가격 정책 수립 요청| MainAgent[🤖 Main Agent<br/>가격 정책 컨설턴트]
+    %% 1. 스타일 정의 (수정 및 유지보수가 쉬워집니다)
+    classDef user fill:#FF6B6B,stroke:#C92A2A,stroke-width:2px,color:#fff;
+    classDef main fill:#4A90E2,stroke:#2E5C8A,stroke-width:3px,color:#fff;
+    classDef skill fill:#50C878,stroke:#2D7A4A,stroke-width:2px,color:#fff;
+    classDef infra fill:#f8f9fa,stroke:#dee2e6,stroke-width:1px,color:#333,stroke-dasharray: 5 5;
+    classDef report fill:#FFD93D,stroke:#C29D00,stroke-width:2px,color:#333;
 
-    MainAgent -->|1. 정보 수집| InfoGather[📋 정보 수집 단계]
-    InfoGather -->|필요 정보 확인| User
+    %% 2. 노드 구성
+    User[👤 사용자]
+    MainAgent[🤖 Main Agent<br/>가격 정책 컨설턴트]
+    
+    subgraph Agent_Skills [Core Logic: 4-Skills]
+        S1[⚙️ Skill 1<br/>비용 분석기]
+        S2[🔍 Skill 2<br/>시장 가격 조사기]
+        S3[💡 Skill 3<br/>가격 모델 설계기]
+        S4[📊 Skill 4<br/>재무 시뮬레이터]
+    end
 
-    InfoGather -->|2. 비용 분석 요청| Skill1[⚙️ Skill 1<br/>비용 분석기]
-    Skill1 -->|비용 구조 데이터| CostDB[(비용 데이터)]
-    CostDB -->|BEP, 단위 비용 등| Skill1
-    Skill1 -->|분석 결과| MainAgent
+    CostDB[(비용 데이터)]
+    WebSearch[🌐 Web Search]
+    Simulation[📈 시뮬레이션 엔진]
+    FinalReport[📄 최종 권고안]
 
-    MainAgent -->|3. 시장 조사 요청| Skill2[🔍 Skill 2<br/>시장 가격 조사기]
-    Skill2 -->|웹 검색| WebSearch[🌐 Web Search]
-    WebSearch -->|경쟁사 가격 정보| Skill2
-    Skill2 -->|시장 데이터| MainAgent
+    %% 3. 흐름도 (기존의 상세 로직 유지)
+    User -->|1. 가격 정책 수립 요청| MainAgent
+    MainAgent -->|2. 정보 수집| User
 
-    MainAgent -->|4. 가격 모델 설계 요청| Skill3[💡 Skill 3<br/>가격 모델 설계기]
-    Skill3 -->|비용 + 시장 데이터 활용| Skill3
-    Skill3 -->|Tier 구조 제안| MainAgent
+    MainAgent --> S1
+    S1 <--> CostDB
+    
+    MainAgent --> S2
+    S2 <--> WebSearch
+    
+    MainAgent --> S3
+    S3 -->|재분석| S3
+    
+    MainAgent --> S4
+    S4 <--> Simulation
 
-    MainAgent -->|5. 재무 검증 요청| Skill4[📊 Skill 4<br/>재무 시뮬레이터]
-    Skill4 -->|시나리오 분석| Simulation[📈 시뮬레이션 엔진]
-    Simulation -->|예측 결과| Skill4
-    Skill4 -->|재무 예측| MainAgent
+    MainAgent -->|3. 통합 분석 결과| FinalReport
+    FinalReport -->|4. 2-3개 옵션 제시| User
+    User -->|5. 피드백/수정 요청| MainAgent
 
-    MainAgent -->|6. 통합 분석 및 권고| FinalReport[📄 최종 권고안]
-    FinalReport -->|2-3개 옵션 제시| User
-
-    User -->|피드백/수정 요청| MainAgent
-    MainAgent -->|재분석| Skill3
-    MainAgent -->|재분석| Skill4
-
-    style MainAgent fill:#4A90E2,stroke:#2E5C8A,stroke-width:3px,color:#fff
-    style Skill1 fill:#50C878,stroke:#2D7A4A,stroke-width:2px,color:#fff
-    style Skill2 fill:#50C878,stroke:#2D7A4A,stroke-width:2px,color:#fff
-    style Skill3 fill:#50C878,stroke:#2D7A4A,stroke-width:2px,color:#fff
-    style Skill4 fill:#50C878,stroke:#2D7A4A,stroke-width:2px,color:#fff
-    style User fill:#FF6B6B,stroke:#C92A2A,stroke-width:2px,color:#fff
-    style FinalReport fill:#FFD93D,stroke:#C29D00,stroke-width:2px,color:#333
+    %% 4. 클래스 적용
+    class User user;
+    class MainAgent main;
+    class S1,S2,S3,S4 skill;
+    class CostDB,WebSearch,Simulation infra;
+    class FinalReport report;
 ```
 
 ## 데이터 흐름도
