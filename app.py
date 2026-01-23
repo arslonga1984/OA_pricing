@@ -83,13 +83,13 @@ with col1:
         with col_a:
             product_name = st.text_input(
                 "제품명 *",
-                placeholder="예: OfficeAgent",
+                placeholder="New AI",
                 help="제품 또는 서비스의 이름"
             )
 
         with col_b:
-            product_type = st.selectbox(
-                "제품 유형 *",
+            product_type = st.multiselect(
+                "제품 유형 * (복수 선택 가능)",
                 options=[
                     "AI 업무 어시스턴트",
                     "AI 챗봇/상담",
@@ -100,7 +100,8 @@ with col1:
                     "고객 서비스 도구",
                     "기타"
                 ],
-                help="제품의 주요 카테고리"
+                default=["AI 업무 어시스턴트"],
+                help="제품의 주요 카테고리 (복수 선택 가능)"
             )
 
         product_description = st.text_area(
@@ -219,7 +220,15 @@ with col1:
                 help="사무실, 소프트웨어 라이선스 등"
             )
 
-        total_fixed = (dev_team_size * avg_salary) + infra_base_cost + other_fixed_cost
+        direct_fixed_cost = st.number_input(
+            "직접 입력 고정비 (월, 만원)",
+            min_value=0,
+            value=0,
+            step=10,
+            help="고정비용이 없거나 예측하기 어려운 경우 직접 입력"
+        )
+
+        total_fixed = (dev_team_size * avg_salary) + infra_base_cost + other_fixed_cost + direct_fixed_cost
         st.info(f"📊 **총 고정비**: ₩{total_fixed * 10000:,}/월 (₩{total_fixed}만원)")
 
         st.markdown("---")
@@ -241,13 +250,15 @@ with col1:
             target_company_size = st.multiselect(
                 "타겟 기업 규모 *",
                 options=[
-                    "스타트업 (1-10명)",
-                    "소기업 (11-50명)",
-                    "중소기업 (51-200명)",
-                    "중견기업 (201-1000명)",
-                    "대기업 (1000명+)"
+                    "50인 이하",
+                    "50-99인",
+                    "100-199인",
+                    "200-299인",
+                    "300-499인",
+                    "500~1000인",
+                    "1000인 이상"
                 ],
-                default=["중소기업 (51-200명)", "중견기업 (201-1000명)"],
+                default=["100-199인", "200-299인"],
                 help="주요 타겟 기업 규모 (복수 선택 가능)"
             )
 
@@ -377,7 +388,7 @@ with col1:
 
         competitor_price_info = st.text_area(
             "경쟁사 가격 정보 (알고 있다면)",
-            placeholder="예: ChatGPT Business $30/월, Wrks.ai 정액제 1만원/월, 종량제 평균 3천원/월",
+            placeholder="ChatGTP Business: $30/월",
             height=60,
             help="알고 있는 경쟁사 가격 정보"
         )
@@ -429,7 +440,7 @@ with col1:
             )
 
         freemium_interest = st.selectbox(
-            "무료 플랜 제공 의향",
+            "무료/할인 플랜 제공 의향",
             options=[
                 "무료 플랜 없음",
                 "기능 제한 무료 플랜",
@@ -468,7 +479,7 @@ with col2:
     if submitted:
         if not api_key:
             st.error("⚠️ API 키를 먼저 입력해주세요 (왼쪽 사이드바)")
-        elif not all([product_name, product_description, key_features]):
+        elif not all([product_name, product_type, product_description, key_features]):
             st.error("⚠️ 제품 기본 정보를 모두 입력해주세요")
         elif not target_company_size or not target_industries:
             st.error("⚠️ 타겟 고객 정보를 선택해주세요")
@@ -478,7 +489,7 @@ with col2:
                 # 제품 정보
                 'product_overview': f"""
 제품명: {product_name}
-제품 유형: {product_type}
+제품 유형: {', '.join(product_type)}
 제품 설명: {product_description}
 핵심 기능: {key_features}
 """,
@@ -496,6 +507,7 @@ with col2:
 - 개발팀: {dev_team_size}명 × ₩{avg_salary}만원 = ₩{dev_team_size * avg_salary}만원/월
 - 인프라 기본료: ₩{infra_base_cost}만원/월
 - 기타 고정비: ₩{other_fixed_cost}만원/월
+- 직접 입력 고정비: ₩{direct_fixed_cost}만원/월
 - **총 고정비: ₩{total_fixed}만원/월 (₩{total_fixed * 10000:,})**
 """,
                 # 사용 패턴
