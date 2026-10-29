@@ -4,32 +4,32 @@
 
 ```mermaid
 graph TD
-    %% 1. 스타일 정의 (수정 및 유지보수가 쉬워집니다)
+    %% 1. Style definitions (easier to modify and maintain)
     classDef user fill:#FF6B6B,stroke:#C92A2A,stroke-width:2px,color:#fff;
     classDef main fill:#4A90E2,stroke:#2E5C8A,stroke-width:3px,color:#fff;
     classDef skill fill:#50C878,stroke:#2D7A4A,stroke-width:2px,color:#fff;
     classDef infra fill:#f8f9fa,stroke:#dee2e6,stroke-width:1px,color:#333,stroke-dasharray: 5 5;
     classDef report fill:#FFD93D,stroke:#C29D00,stroke-width:2px,color:#333;
 
-    %% 2. 노드 구성
-    User[👤 사용자]
-    MainAgent[🤖 Main Agent<br/>가격 정책 컨설턴트]
+    %% 2. Nodes
+    User[👤 User]
+    MainAgent[🤖 Main Agent<br/>Pricing Policy Consultant]
     
     subgraph Agent_Skills [Core Logic: 4-Skills]
-        S1[⚙️ Skill 1<br/>비용 분석기]
-        S2[🔍 Skill 2<br/>시장 가격 조사기]
-        S3[💡 Skill 3<br/>가격 모델 설계기]
-        S4[📊 Skill 4<br/>재무 시뮬레이터]
+        S1[⚙️ Skill 1<br/>Cost Analyzer]
+        S2[🔍 Skill 2<br/>Market Price Researcher]
+        S3[💡 Skill 3<br/>Pricing Model Designer]
+        S4[📊 Skill 4<br/>Financial Simulator]
     end
 
-    CostDB[(비용 데이터)]
+    CostDB[(Cost Data)]
     WebSearch[🌐 Web Search]
-    Simulation[📈 시뮬레이션 엔진]
-    FinalReport[📄 최종 권고안]
+    Simulation[📈 Simulation Engine]
+    FinalReport[📄 Final Recommendation]
 
-    %% 3. 흐름도 (기존의 상세 로직 유지)
-    User -->|1. 가격 정책 수립 요청| MainAgent
-    MainAgent -->|2. 정보 수집| User
+    %% 3. Flow (preserves the original detailed logic)
+    User -->|1. Request pricing strategy| MainAgent
+    MainAgent -->|2. Collect information| User
 
     MainAgent --> S1
     S1 <--> CostDB
@@ -38,16 +38,16 @@ graph TD
     S2 <--> WebSearch
     
     MainAgent --> S3
-    S3 -->|재분석| S3
+    S3 -->|Re-analyze| S3
     
     MainAgent --> S4
     S4 <--> Simulation
 
-    MainAgent -->|3. 통합 분석 결과| FinalReport
-    FinalReport -->|4. 2-3개 옵션 제시| User
-    User -->|5. 피드백/수정 요청| MainAgent
+    MainAgent -->|3. Integrated analysis results| FinalReport
+    FinalReport -->|4. Present 2-3 options| User
+    User -->|5. Feedback / revision request| MainAgent
 
-    %% 4. 클래스 적용
+    %% 4. Apply classes
     class User user;
     class MainAgent main;
     class S1,S2,S3,S4 skill;
